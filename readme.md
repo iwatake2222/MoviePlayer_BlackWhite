@@ -3,8 +3,8 @@
 This is a tiny (128 x 64 pixel) black and white movie player running on ATmega 328. This device plays converted image data saved in SD card.
 ![Big picture](01_doc/MoviePlayerBigPicture.jpg)
 Link to youtube is bellow:  
-[![Youtube](http://img.youtube.com/vi/grzDsh2M5ko/0.jpg)](http://www.youtube.com/watch?v=grzDsh2M5ko)
-<img src="01_doc/picture_00.jpg" alt="" height="300px">
+[![Youtube](01_doc/picture_00.jpg)](http://www.youtube.com/watch?v=grzDsh2M5ko)
+
 
 ## Environment
 * Atmel Studio 7.0
@@ -28,6 +28,7 @@ Link to youtube is bellow:
 %> mkdir temp
 %> ffmpeg -i "videoname.mp4" -vcodec png ./temp/img-%04d.png
 %> sh ./AllConvert.sh
+%> cat ./temp/*.bin > video.bin 	#option
 ```
 ### Note
 * Tools are in "00_tools" folder

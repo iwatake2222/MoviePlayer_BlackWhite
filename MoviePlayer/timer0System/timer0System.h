@@ -25,7 +25,7 @@
  * External APIs
  ***/
 void timer0SystemInit();
-uint8_t timer0SystemGetTimeMS();
+uint16_t timer0SystemGetTimeMS();
 RET timer0SetCallback(void (*func)());
 RET timer0ClearCallback(void (*func)());
 

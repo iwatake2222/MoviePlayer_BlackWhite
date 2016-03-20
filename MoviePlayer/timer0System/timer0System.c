@@ -52,7 +52,7 @@ RET timer0ClearCallback(void (*func)())
 }
 
 // over flow happens every 65.536 sec
-uint8_t timer0SystemGetTimeMS()
+uint16_t timer0SystemGetTimeMS()
 {
 	return s_cntTimer0_1ms;
 }

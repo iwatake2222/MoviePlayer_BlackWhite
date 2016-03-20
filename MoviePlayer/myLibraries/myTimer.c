@@ -54,7 +54,7 @@ uint16_t getIntervalTime()
 	uint16_t now = getTimeMS();
 	uint16_t previous = s_lastCntTimer0_1ms;
 	s_lastCntTimer0_1ms = now;
-	if(now > previous) {
+	if(now >= previous) {
 		return (now - previous)&0xffff;
 	} else {
 		//return (1 << 16) - previous + now;

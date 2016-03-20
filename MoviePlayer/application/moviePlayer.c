@@ -15,10 +15,13 @@
 #include "../fatFS/ff.h"
 
 /*** Internal Const Values ***/
+// each file is each picture. without this definition, each file can be merged pictures
+//#define ONE_FILE_IS_ONE_PICTURE
+
 #define WIDTH  128
 #define HEIGHT 64
 #define TARGET_FPS 30
-#define TARGET_FPS_TIME_MS (1000/TARGET_FPS)
+#define TARGET_FPS_TIME_MS ((uint8_t)(1000/TARGET_FPS))
 #define SIZE_VIDEO_BUFFER 128
 /*** Internal Static Variables ***/
 static FATFS FatFs;
@@ -31,6 +34,8 @@ static void drawFileLineBuff(char* filename);
 static void drawFileLineBuff_BlackWhite(char* filename);
 static uint8_t getNextFile(DIR *dir, char *filename);
 static uint8_t getNextDir(DIR *dir, char *dirname);
+static uint16_t getFrameIntervalTime();
+
 
 /*** External Function Defines ***/
 void moviePlayerInit()
@@ -46,19 +51,26 @@ void moviePlayerInit()
 void moviePlayerLoop()
 {
 	/* fps control */
-	static int8_t accumulatedFrameDelay;
+	static int16_t accumulatedFrameDelay;
 	uint8_t isSkip = 0;
-	int8_t currentDelay = TARGET_FPS_TIME_MS - getIntervalTime() - accumulatedFrameDelay;
+	uint16_t intervalTime = getFrameIntervalTime();
+	static int16_t currentDelay = 999;
+	if(currentDelay == 999){
+		// do nothing for the first operation
+		currentDelay = 0;
+	} else {
+		currentDelay = TARGET_FPS_TIME_MS - intervalTime - accumulatedFrameDelay;
+	}
 	if(currentDelay > 0) {
 		// need to wait
+		accumulatedFrameDelay = 0;
 		while(currentDelay--) _delay_ms(1);
+		getFrameIntervalTime();	// just to update measurement start time
 	} else if(currentDelay < 0) {
 		// need to skip
 		accumulatedFrameDelay = -currentDelay;
-		isSkip = 1;;
+		isSkip = 1;
 	}
-	
-
 		
 	static DIR dirRoot;
 	static char dirname[14];
@@ -139,8 +151,12 @@ static void drawFileLineBuff(char* filename)
 	startFrame();
 	suspendDraw();
 	const uint16_t bulkSize = SIZE_VIDEO_BUFFER;		// <= VIDEO_BUFFER_SIZE
+#ifdef ONE_FILE_IS_ONE_PICTURE
 	for(uint16_t x = 0; x < WIDTH*HEIGHT*2/bulkSize; x++){
-		UINT bw;
+#else
+	while(1){
+#endif
+		UINT bw;	
 		f_read(&Fil, s_videoBuffer, bulkSize, &bw);
 		if(bw != bulkSize)break;
 		resumeDraw();
@@ -149,23 +165,28 @@ static void drawFileLineBuff(char* filename)
 	}
 	f_close(&Fil);
 	uint8_t time = stopFrame();
-	printDecPos(1000/time, 0, 1);
+	//printDecPos(1000/time, 0, 1);
 	//getchar();
 }
 
 static void drawFileLineBuff_BlackWhite(char* filename)
 {
+	setVideoArea(0, 0, WIDTH, HEIGHT);
+	startFrame();
+	suspendDraw();
+	
 	uint8_t ret = f_open(&Fil, filename, FA_READ ) ;
 	if(ret != FR_OK) {
 		printDec(ret);
 		return;
-	}	
-	setVideoArea(0, 0, WIDTH, HEIGHT);
-	startFrame();
-	suspendDraw();
+	}
 
 	const uint16_t bulkSize = SIZE_VIDEO_BUFFER/2;		// <= VIDEO_BUFFER_SIZE
+#ifdef ONE_FILE_IS_ONE_PICTURE
 	for(uint16_t x = 0; x < WIDTH*HEIGHT/8/bulkSize; x++){
+#else
+	while(1){
+#endif
 		UINT bw;
 		f_read(&Fil, s_videoBuffer, bulkSize, &bw);
 		//printHex(buffer[0]);
@@ -178,7 +199,7 @@ static void drawFileLineBuff_BlackWhite(char* filename)
 	f_close(&Fil);
 	uint8_t time = stopFrame();
 	//printDecPos(1000/time, 0, 1);
-	//printHex(1000/time);
+	//printHex(time);
 	//getchar();
 }
 
@@ -215,5 +236,19 @@ static uint8_t getNextDir(DIR *dir, char *dirname)
 		} else {
 			continue;
 		}
+	}
+}
+
+static uint16_t getFrameIntervalTime()
+{
+	static uint16_t s_lastCntTimer0_1ms;
+	uint16_t now = getTimeMS();
+	uint16_t previous = s_lastCntTimer0_1ms;
+	s_lastCntTimer0_1ms = now;
+	if(now >= previous) {
+		return (now - previous)&0xffff;
+		} else {
+		return (1 << 16) - previous + now;
+		//return ((65535 - previous) + now + 1)&0xffff;	// to avoid using more than 16bit
 	}
 }

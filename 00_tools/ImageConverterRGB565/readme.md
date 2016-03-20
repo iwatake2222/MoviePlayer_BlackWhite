@@ -10,7 +10,7 @@
 %> mkdir temp
 %> ffmpeg -i "videoname.mp4" -vcodec png ./img-%04d.png
 %> sh ./AllConvert.sh
-
+%> cat ./temp/*.bin > video.bin
 
 # SD card directory structure
 * ~/AAA/
