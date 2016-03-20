@@ -35,6 +35,8 @@ Link to youtube is bellow:
 * Converted image date is vertical order (not raster) because of display device specifications
 * LCD_ST7735 is just to display file name. It's not  mandatory.
 * There is unexpected interference between SD card and LCD despite of disabled CS...
+* FPS controller doesn't work as I expected...
+
 ## Software Structure
 ![Software Structure](01_doc/MoviePlayerSoftwareStructure.jpg)
 
