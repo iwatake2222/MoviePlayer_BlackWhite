@@ -1,6 +1,6 @@
 # Movie Player (Black and White)
 
-This is a tiny (128 x 64 pixel) black and white movie player running on ATmega 328. This device plays converted image data saved in SD card.
+This is a tiny (128 x 64 pixel) black and white video player running on ATmega 328. This device plays converted image data saved in SD card.
 ![Big picture](01_doc/MoviePlayerBigPicture.jpg)
 Link to youtube is bellow:  
 [![Youtube](01_doc/picture_00.jpg)](https://www.youtube.com/watch?v=tnzTumvxPdg)
